@@ -1,0 +1,51 @@
+README for Random Daemon
+=========================
+
+Copyright
+----------
+
+RandD - Random Daemon, random collection and provider system
+Copyright (C) Konrad Rosenbaum, 2002
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+
+Disclaimer
+-----------
+
+I'm no professional cryptographer, so I cannot validate how good this program
+is at providing "cryptographically good random". If you find one who is
+willing to check it: tell me, he will be appreciated.
+
+You use this program at your own risk.
+
+
+Docu
+------
+
+Take any webbrowser (eg. lynx or konqueror) and look into the doc directory.
+
+Purpose
+--------
+
+This program was written to get a steady random source for several entropy
+consuming processes, like GnuPG or SSL/TLS internet connections. Used at
+higher speeds it should also be suitable for small statistic experiments (like
+small versions of the Monte-Carlo-Test).
+
+Credits
+--------
+
+This program was inspired by EGD (Entropy Gathering Daemon) from Brian Warner.

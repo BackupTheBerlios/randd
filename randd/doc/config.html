@@ -1,0 +1,124 @@
+<html>
+<title>Randd: Configuration</title>
+<body>
+<h1>Configuration</h1>
+
+The configuration is normally stored in <tt>/etc/randd.cfg</tt>, but can start
+randd with a diferent file as a parameter.
+
+The general format is:<br>
+<tt>directive parameters...</tt><p>
+
+Empty lines and lines starting with <tt>#</tt> are ignored.<p>
+
+You should keep the general order of the sample config file and this description,
+since the config file is parsed from top to bottom, if a reference cannot be
+found when the parser goes over a line it will produce an error, even if the
+reference is defined later in the file.
+
+<h2>General Config</h2>
+
+<tt>logmethod <i>method</i></tt><br>
+the stream to write log messages to, method can be any of: stderr, stdout, syslog,
+or file with an additional parameter with the file name.<p>
+
+<tt>loglevel <i>level level...</i></tt><br>
+Logging Levels to be written out:
+<ul>
+<li>error - error messages
+<li>warning - warnings
+<li>config - config file parsing (output is starting at this line)
+<li>interface - interface open/close/config
+<li>io - I/O messages
+<li>debug - debug messages
+<li>iodebug - I/O hex dumps
+<li>default - default levels = error warning
+<li>all - all loglevels are switched on
+</ul>
+Currently only error, warning, and debug are used.<p>
+
+<tt>config <i>error|warning</i></tt><br>
+defines whether the program should only warn or raise an error and exit if
+it runs into an error in the config file.<p>
+
+<tt>user <i>username/uid</i></tt><br>
+Security: which user to switch to after configuration. (Currently not used.)<p>
+
+<tt>daemon <i>yes|no</i></tt><br>
+whether to go to background. <br>
+Attention: this option interferes with loglevel, if it is still on stderr or stdout
+it will be switched to syslog, if you switch to stderr or stdout afterwards you risk
+writing trash on another file/device, since stderr/stdout are closed when daemonizing.<p>
+
+<h2>Input Devices</h2>
+
+All input devices follow this scheme:<br>
+<tt>directive name bufferspace <i>options</i><br>
+where <tt>name</tt> is a string identifiing this device (see source dirctive below) and
+bufferspace is a number designating the space to use for an internal buffer, optionally
+followed by "k" or "M" to multiply with 1024 or 1024^2.<p>
+
+<tt>file <i>name bufspace filename</i></tt><br>
+Any device file delivering some kind of random (eg. /dev/random).<p>
+
+<tt>sound <i>name bufspace devicefile [options]</i></tt><br>
+any sound device delivering some noise on its input channel (eg. /dev/sound/dsp0).
+Options (currently ignored!) can be any of these (examples, preferred is first):
+<ul>
+<li><tt>allow-bits=<i>16,8</i></tt> - bit rates which are allowed
+<li><tt>allow-speed=<i>48000,44100,32000,22100,11050</i></tt> - allowable sample rates
+<li><tt>channel=<i>left|right|both</i></tt> - which channel to use
+<li><tt>stereo=<i>yes|no</i></tt> - use stereo mode (default: try it)
+<li><tt>bits=<i>2/16,1/8</i></tt> - how many bits to use in which bit-rate (default: 1 bit in any mode)
+</ul><p>
+
+<tt>inegd <i>name bufspace socket</i></tt><br>
+<tt>inegdi <i>name bufspace host port [options?]</i></tt><br>
+<tt>inegdi6 <i>name bufspace host port [options?]</i></tt><br>
+local, TCP/IPv4, TCP/IPv6 Entropy Gathering Daemon. Currently only local works.<p>
+
+<tt>prand <i>name bufspace [seedintervall]</i></tt><br>
+Pseudo Random generator (rand()). Seedintervall is the amount of bytes to produce
+without seeding the generator again. Currently the seed is taken from the entropy pool
+it is planned to configure it to another device in order to make it more secure. However,
+prand is only planned to be a xor-source for other devices (eg. sound cards).<p>
+
+<h2>Entropy pool</h2>
+
+<tt>source <i>maxlevel inputname [inputname...]</i></tt><br>
+combines one or more input devices to one source for the entropy pool. Maxlevel is the
+maximum fill level in percent of the pool to which to use this source, normally high
+quality sources have the highest level (so that poor sources are only used in cases of
+emergency). All input devices given in this statement are xor'ed together, so you will
+each time get the amount of random data which is available in the input device with the
+lowest fill grade of its internal buffer.<p>
+
+<tt>persist <i>filename</i></tt><br>
+filename to be used to store the entropy pool when shutting down and reading it back
+when starting up again. Currently not implemented.<p>
+
+<tt>poolsize <i>size</i></tt><br>
+Size of the entropy pool in byte (optionally with suffix "k" or "M").<p>
+
+<h2>Output</h2>
+
+<tt>pipe <i>filename</i></tt><br>
+Named pipe delivering pure random data without a special protocol (eg. can replace
+/dev/random).<p>
+
+<tt>socket <i>filename</i></tt><br>
+Local Socket delivering pure random on all connections. Currently not implemented,
+until problems with too big socket buffers solved.<p>
+
+<tt>egd <i>file</i><br>
+egdi <i>host port</i><br>
+egdi6 <i>host port</i></tt><br>
+Entropy Gathering Daemon compatible protocol on local, TCP/IPv4, TCP/IPv6 socket. Host
+can be an asterisk (*) to bind on any interface otherwise it must be a local hostname or
+IP-Address. Currently only local is supported.<p>
+
+
+<hr>
+<a href="sources.html">Back</a> <A href="index.html">Top</a>
+
+</html>

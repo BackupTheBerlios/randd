@@ -1,0 +1,154 @@
+<html>
+<title>Randd: Sources of Random</title>
+<body>
+<h1>Sources of Random</h1>
+
+<h2>Software Sources</h2>
+
+These are also called Pseudo-Random-Generators. Computers can only create
+predictable streams of bits following a certain formula to calculate them.
+These streams of bits differ in quality in that the amount of values until
+the stream repeats the same sequence differs.<p>
+
+The predictability of a PRG can be raised by changing the so called "random
+seed" from time to time. The random seed is a number (or more general a set of
+bits) that is used to start the PRG with. By changing the seed the start point
+of the sequence is changed. To make the seeding unpredictable the seed has to be
+taken from a good random source (see hardware sources).<p>
+
+Note 1: Some fellows say that their computer behaves unpredictable. But scientifically
+this is a) pseudo-unpredictability in that the user does not know what to expect from
+the computer, b) a formula too complex for or unknown to the user, or c) a hardware
+fault.
+
+<h2>Hardware Sources</h2>
+
+<h3>Computer Clock</h3>
+
+A clock (and especially a computer clock) is a highly predictable source of time
+information. However the startup time of a program is often only slightly predictable,
+so that the milliseconds part of the current time is often a good enough source of
+random seed for a PRG.<p>
+
+The system clock is used in cases of emergency for seeding the PRG of Randd. This is
+when it is time to seed the PRG and no entropy is left in the pool.
+
+<h3>Processor internal random source</h3>
+
+Intel and others have integrated noise diodes into their processors and deliver
+the created random bits to the user space via a special command or register.<p>
+
+This source is currently unsupported.
+
+<h3>Sound card</h3>
+
+Analog lines tend to produce some high frequency noise in cables and connectors.
+The analog to digital converters of sound cards sample the noise of the analog line.
+Thus the least significant ("most silent") bits of a sound cards microphone or AUX line
+can be used to collect some bits of random.<p>
+
+This is currently one of the preferred methods.
+
+<h3>Dedicated Random Hardware</h3>
+
+There are several methods of integrating noise diodes or similiar devices into
+computer hardware. Very common are devices that connect to the serial or parallel
+I/O port. Cards that connect to the ISA or PCI bus are faster but also much more
+expensive.
+
+<h2>Combined sources</h2>
+
+<h3>System activity</h3>
+
+Is a combination of Hardware, Software and Human interaction. In everything that
+is done with hardware at a computer there is some physical delay with few unpredictable
+parts (eg. the time between keystrokes or the time between network packets). Some
+kernels (eg. Linux) collect this unpredictability and give it back to the user.<p>
+
+The kernel filters the most random bits out of this activity, so the bit stream can
+usually be viewed as a nearly perfect source of random. Unfortunatly it is very slow:
+/dev/random of Linux deliveres about 40 bytes per second.
+
+<h3>PRG/Hardware combinations</h3>
+
+There are several combinations where the speed of PRGs is combined with the high
+quality of hardware. Eg. /dev/urandom of Linux is a PRG that is very often seeded by
+/dev/random.
+
+
+<h2>Speed and Quality</h2>
+
+Here some examples.<p>
+
+<table frame="1" border="1">
+<tr><td>Source<td>Speed<td>Quality
+<tr><td>rand (1)<td>11MB/s<td>very low
+<tr><td>/dev/urandom<td>50kB/s<td>mid level
+<tr><td>/dev/random<td>40byte/s<td>very high
+<tr><td>sound card (2)<td>6kB/s<td>high-very high(3)
+</table><p>
+
+(1) Measured on my Bi-Athlon 1500+. Using only one byte per value.<p>
+(2) Sound Blaster Live, 48kHz, one bit per sample.<p>
+(3) The actual quality of this bit stream depends on the sound card. Mid range
+sound cards have additional noise filters at the A/D converters, so the entropy can
+be very low. Very high and very low quality cards don't have this filter and are
+a good source of random. On good cards the best results are seen when the microphone
+port is used and no microphone is connected or the microphone listens to the fan at the
+power supply of the computer.<p>
+
+Only very high quality sources should be used to feed cryptographic programs. Elsewise
+you risk that your communication can be hijacked.<p>
+
+Hardware sources tend to scew a little bit in favour of 0's or 1's or combinations
+thereof. The quality can be raised by combining them with another source. Eg. a soundcard
+with /dev/urandom.
+
+<h2>Estimating costs</h2>
+
+Depending on what you want to do you have to estimate what speed and quality you need.
+This section tries to give some hints (DISCLAIMER: I'm no cryptographer, the likelihood
+that I miscalculated something is high):<p>
+
+Single-user-at-a-time-host with generation of gpg/ssl keys, and frequent
+eMail-signing/-encrypting:<br>
+normally there is no need to set up a random server, the speed of /dev/random
+is high enough for signing/encryption, and normally generating a key needs only
+few minutes.<p>
+
+Single-user-at-a-time-host with impatient user:<br>
+A few kB of entropy should be enough to satisfy any needs, the random can be
+selected through /dev/random, it will deliver enough random for every day use.<p>
+
+Multi-user-host with these apps:<br>
+Todays servers support only few dozens of users, so there is no need to trick
+around with special hardware or something, the above solution will suffice.
+Maybe the entropy pool should be increased to half a megabyte.<p>
+
+Secure Web-Server:<br>
+(that's what I wrote this program for) Depending on traffic you can either stay
+with a big entropy pool (1-2MB) and /dev/random or you might need something more.
+It is important that your random source is of high quality. However, a sound card
+or a serial device should easily deliver enough random for you. For example a
+simple 44100Hz device will deliver 44100 bit per second, a SSL-Server needs about
+128 bit per session (more if the connection stays for a longer time, which is
+normally not the case for Web-servers), so this random source could deliver enough
+random for approx. 340 connection establishments per <i>second</i> if every connection
+stays up for 10 seconds that would mean your server could handle 3400 sessions at
+the same time. You would need a gigantic amounts of processing power to handle
+so many requests even in an unencrypted environment.<p>
+
+Statistical Simulations (like Monte-Carlo):<br>
+Depending on the amount of non-random work (ie. calculation) in these simulations
+you might need quite some speed. For the normal simulations done by students and
+most normal simulations high quality does not matter, in these cases you can easily
+depend on the rand()-function. If you need a slightly higher quality either seed it
+from the milliseconds of your starting time or values read from /dev/random. More
+complicated tasks might require /dev/urandom. Only few projects need high quality
+random, in most cases the sound card driver of randd will suffice, otherwise you will
+need a cluster anyway so the costs of special random hardware won't be that big
+in your quite huge purchase order.<p>
+
+<hr>
+<a href="defs.html">Back</a> <a href="index.html">Top</a> <a href="config.html">Next</a>
+
