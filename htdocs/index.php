@@ -3,18 +3,7 @@
 <h1>RandD - Random Daemon</h1>
 
 
-<table width="100%">
-<tr><td width="15%" bgcolor="#c0c0ff" valign="top">
-
-This project is hosted by
-<a href="http://developer.berlios.de">
-<img src="http://developer.berlios.de/sflogo.php?group_id=0&type=1" width="124" height="32" border="0" alt="BerliOS Logo"></A>
-
-<hr>
-<!-----------------------------MENU-------------------->
-
-</td><td width="*" valign="top">
-<!-----------------------------CONTENT----------------->
+<? include('menu.inc') ?>
 
 <h2>Purpose</h2>
 
@@ -60,9 +49,4 @@ is already able to do that) - thus a ideally distributed true random source can 
 The project is heading for the first Alpha release.
 
 
-
-</td></tr>
-</table>
-
-
-</html>
+<? include('footer.inc') ?>
